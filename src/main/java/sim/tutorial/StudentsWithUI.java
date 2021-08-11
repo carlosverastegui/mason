@@ -3,8 +3,10 @@ import sim.portrayal.continuous.*;
 import sim.engine.*;
 import sim.display.*;
 import sim.portrayal.simple.*;
+import sim.portrayal.*;
 import javax.swing.*;
 import java.awt.Color;
+import java.awt.*;
 
 public class StudentsWithUI extends GUIState {
     
@@ -35,7 +37,17 @@ public class StudentsWithUI extends GUIState {
 
         // Tell the portrayals what to portray and how to portray them
         yardPortrayal.setField(students.yard);
-        yardPortrayal.setPortrayalForAll(new OvalPortrayal2D());
+        yardPortrayal.setPortrayalForAll(new OvalPortrayal2D()
+        {
+        public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
+            Student student = (Student) object;
+
+            int agitationShade = (int) (student.getAgitation() * 255 / 10.0);
+            if (agitationShade > 255) agitationShade = 255;
+
+            paint = new Color(agitationShade, 0, 255 - agitationShade);
+            super.draw(object, graphics, info);
+        }});
 
         buddiesPortrayal.setField(new SpatialNetwork2D(students.yard, students.buddies));
         buddiesPortrayal.setPortrayalForAll(new SimpleEdgePortrayal2D());

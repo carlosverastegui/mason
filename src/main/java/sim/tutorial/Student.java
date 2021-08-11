@@ -7,6 +7,13 @@ public class Student implements Steppable {
 
     public static final double MAX_FORCE = 3.0;
 
+    double friendsClose = 0.0; // Initially very close to my friends
+    double enemiesCloser = 10.0; // Way too close to my enemies
+
+    public double getAgitation() {
+        return friendsClose + enemiesCloser;
+    }
+
     public void step(SimState state) {
         Students students = (Students) state;
         Continuous2D yard = students.yard;
@@ -14,6 +21,8 @@ public class Student implements Steppable {
         Double2D me = students.yard.getObjectLocation(this);
 
         MutableDouble2D sumForces = new MutableDouble2D();
+
+        friendsClose = enemiesCloser = 0.0;
 
         // Go through my buddies and determine how much I want to be near them
         MutableDouble2D forceVector = new MutableDouble2D();
@@ -34,6 +43,8 @@ public class Student implements Steppable {
                 if (forceVector.length() > MAX_FORCE) { // I’m far enough away
                     forceVector.resize(MAX_FORCE);
                 }
+        
+                friendsClose += forceVector.length();
             } else { // the nearer I am to him the more I want to get away from him, up to a limit
                 forceVector.setTo((him.x - me.x) * buddiness, (him.y - me.y) * buddiness);
 
@@ -42,6 +53,8 @@ public class Student implements Steppable {
                 } else if (forceVector.length() > 0) {
                     forceVector.resize(MAX_FORCE - forceVector.length()); // invert the distance
                 }
+
+                enemiesCloser += forceVector.length();
             }
 
             sumForces.addIn(forceVector);
